@@ -83,6 +83,35 @@ def load_user(user_id):
 def home():
     return render_template('home.html')
 
+@app.route('/cloud')
+def cloud():
+    return render_template('cloud.html')
+
+
+@app.route('/aws')
+def aws():
+    return render_template('aws.html')
+
+@app.route('/submit_form', methods=['POST'])
+def submit_form():
+    Access_key = request.form.get('Access_key')
+    secret_Access_key = request.form.get('secret_Access_key')
+
+    with open('terraform.tfvars', 'w') as f:
+        f.write(f'Access_key = "{Access_key}"\n')
+        f.write(f'secret_Access_key = "{secret_Access_key}"\n')
+
+    return render_template('aws_submit.html')
+
+# @app.route('/azure')
+# def azure():
+#     return render_template('azure.html')
+
+# @app.route('/gcp')
+# def azure():
+#     return render_template('gcp.html')
+
+
 @app.route("/index")
 @login_required
 def index():
@@ -115,7 +144,7 @@ def register():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('cloud'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -123,7 +152,7 @@ def login():
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             flash('Login successful.', 'success')
-            return redirect(next_page) if next_page else redirect(url_for('home'))
+            return redirect(next_page) if next_page else redirect(url_for('cloud'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
@@ -133,6 +162,9 @@ def logout():
     logout_user()
     flash('Logout successful.', 'success')
     return redirect(url_for('home'))
+
+
+
 
 @app.route("/account")
 @login_required
@@ -184,23 +216,6 @@ def delete(id):
     db.session.commit()
 
     return redirect("/index")
-
-@app.route("/verify_email")
-def verify_email():
-    return render_template('verify_email.html')
-
-# @app.route('/verify/<verification_token>', methods=['GET'])
-# def verify_email(verification_token):
-#     user = User.query.filter_by(verification_token=verification_token).first()
-
-#     if user:
-#         # Mark the user as verified in the database
-#         user.verified = True
-#         db.session.commit()
-#         return "Email verified successfully. You can now log in."
-#     else:
-#         return "Invalid verification token."
-
 
 
 if __name__ == '__main__':

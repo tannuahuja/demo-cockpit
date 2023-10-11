@@ -19,8 +19,7 @@ app = Flask(__name__, static_url_path='/static')
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quelin.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://aayush:Aayush8368*@localhost/newdatabase'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://manjari:manjari@localhost/creds'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -145,16 +144,6 @@ def submit_form_aws():
         print("Error: Failed to obtain Azure access token. Make sure you are logged into Azure CLI.")
         exit(1)
 
-    
-
-    # # Create Azure Resource Group if it doesn't exist
-    # try:
-    #     subprocess.check_call(["az", "group", "create", "--name", resource_group_name, "--location", "southcentralus"])
-    #     print(f"Azure Resource Group '{resource_group_name}' created successfully.")
-    # except subprocess.CalledProcessError:
-    #     print(f"Azure Resource Group '{resource_group_name}' already exists or encountered an error during creation.")
-
-    
 
     # Create Azure Key Vault in the specified Resource Group
     try:
@@ -195,47 +184,30 @@ def submit_form_aws():
 
     ## ending the script
 
-    return render_template('./submit.html')
+    return render_template('./create_aks.html')
 
 
 @app.route('/azure')
 def azure():
     return render_template('azure.html')
 
-@app.route('/submit_form', methods=['POST'])
-
+@app.route('/submit_form_azure', methods=['POST'])
 def submit_form_azure():
-
     # Get  azure form data
-
     subscription_id = request.form.get('subscription_id')
-
     client_id = request.form.get('client_id')
-
     client_secret = request.form.get('client_secret')
-
     tenant_id = request.form.get('tenant_id')
     User_name = request.form.get('User_name')
     User_Id = str(int(random.random()))
  
-
- 
-
- 
-
     # Write Azure form data to terraform.vars file
-
     with open('terraform.tfvars', 'w') as f:
-
         f.write(f'subscription_id = "{subscription_id}"\n')
-
         f.write(f'client_id = "{client_id}"\n')
-
         f.write(f'client_secret = "{client_secret}"\n')
-
         f.write(f'tenant_id = "{tenant_id}"\n')
-
-    
+   
     ## starting the script
 
     # Azure Resource Group and Key Vault Configuration
@@ -243,13 +215,10 @@ def submit_form_azure():
     key_vault_name = User_name + User_Id  
     secrets_file_path = "./terraform.tfvars"
 
-    
 
-    # Replace underscores with hyphens in the Key Vault and Resource Group names
+   # Replace underscores with hyphens in the Key Vault and Resource Group names
     key_vault_name = key_vault_name.replace("_", "-")
-    resource_group_name = resource_group_name.replace("_", "-")
-
-    
+    resource_group_name = resource_group_name.replace("_", "-")    
 
     # Read secrets from the file
     secrets = {}
@@ -257,8 +226,6 @@ def submit_form_azure():
         for line in file:
             key, value = line.strip().split(" = ")
             secrets[key] = value
-
-    
 
     # Authenticate to Azure
     try:
@@ -268,17 +235,6 @@ def submit_form_azure():
         print("Error: Failed to obtain Azure access token. Make sure you are logged into Azure CLI.")
         exit(1)
 
-    
-
-    # # Create Azure Resource Group if it doesn't exist
-    # try:
-    #     subprocess.check_call(["az", "group", "create", "--name", resource_group_name, "--location", "southcentralus"])
-    #     print(f"Azure Resource Group '{resource_group_name}' created successfully.")
-    # except subprocess.CalledProcessError:
-    #     print(f"Azure Resource Group '{resource_group_name}' already exists or encountered an error during creation.")
-
-    
-
     # Create Azure Key Vault in the specified Resource Group
     try:
         subprocess.check_call(["az", "keyvault", "create", "--name", key_vault_name, "--resource-group", resource_group_name, "--location", "southcentralus"])
@@ -287,7 +243,6 @@ def submit_form_azure():
         print(f"Azure Key Vault '{key_vault_name}' already exists or encountered an error during creation in Resource Group '{resource_group_name}'.")
 
     
-
     # Store secrets in Azure Key Vault
     for key, value in secrets.items():
         # Replace underscores with hyphens in the secret name
@@ -295,8 +250,6 @@ def submit_form_azure():
         encoded_value = base64.b64encode(value.encode("utf-8")).decode("utf-8")     
         command = f"az keyvault secret set --vault-name {key_vault_name} --name {key} --value {encoded_value} --output none --query 'value'"
         # command = f"az keyvault secret set --vault-name {key_vault_name} --name {key} --value {value} --output none --query 'value'"
-
-    
 
         try:
             # Use Azure CLI to set the secret in the Key Vault
@@ -307,20 +260,55 @@ def submit_form_azure():
             print(e)
 
     
-
     print("All secrets have been stored in Azure Key Vault.")
     
-
     os.remove(secrets_file_path)     
     
-
     with open(secrets_file_path, "w"):         pass 
     
-
     ## ending the script
 
     return render_template('submit.html')
 
+@app.route('/azure_form', methods=['GET'])
+def azure_form():
+    return render_template('create_aks.html')
+
+@app.route('/create_aks_form', methods=['GET'])
+def create_aks_form():
+    return render_template('create_aks.html')
+
+@app.route('/success', methods=['GET'])
+def success():
+    return render_template('success.html')
+
+@app.route('/create_aks', methods=['POST'])
+def create_aks():
+    # Retrieve form data
+    resource_group = request.form.get('resource_group')
+    Region = request.form.get('Region')
+    availability_zone = request.form.get('availability_zone')
+    aks_name = request.form.get('aks_name')
+    aks_version = request.form.get('aks_version')
+    node_count = request.form.get('node_count')
+    cluster_type = request.form.get('cluster_type')
+    vm_name = request.form.get('vm_name')
+    vm_pass = request.form.get('vm_pass')
+
+    # Create the content for terraform.tfvars
+    with open('terraform.tfvars', 'w') as f:
+        f.write(f'resource_group = "{resource_group}"\n')
+        f.write(f'Region = "{Region}"\n')
+        f.write(f'availability_zone = "{availability_zone}"\n')
+        f.write(f'aks_name = "{aks_name}"\n') 
+        f.write(f'aks_version = "{aks_version}"\n')
+        f.write(f'node_count = "{node_count}"\n')
+        f.write(f'cluster_type = "{cluster_type}"\n')
+        f.write(f'vm_name = "{vm_name}"\n') 
+        f.write(f'vm_pass = "{vm_pass}"\n') 
+
+    # You can also redirect the user to a success page if needed
+    return render_template('success.html')
 
 
 @app.route('/gcp')

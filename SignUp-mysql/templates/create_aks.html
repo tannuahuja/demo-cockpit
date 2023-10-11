@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block content %}
+<head>
+    <title>create aks</title>
+</head>
+<style>
+       .form-group {
+            margin-bottom: 20px;
+            /* size: 10px; */
+        }
+
+        .form-control {
+            width: 350px; 
+        }
+
+        .form-control {
+            height: 30px; 
+        }
+
+</style>
+
+<div class="container">
+    <h2>Create AKS Cluster</h2>
+    <form id="aksForm" action="/create_aks" method="post">
+    <!-- <form id="aksForm" action="/create_aks" method="get"> -->
+
+        <div class="form-group">
+            <label for="resource_group" style="color: aliceblue;">Resource Group Name:</label>
+            <input type="text" class="form-control" id="resource_group" name="resource_group" required>
+        </div>
+
+        <div class="form-group">
+            <label for="Region" style="color: aliceblue;" >Region:</label>
+            <select class="form-control" id="Region" name="Region" required>
+                <option value="East US">East US</option>
+                <option value="West US">West US</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="availability_zone" style="color: aliceblue;">Availability Zone:</label>
+            <select class="form-control" id="availability_zone" name="availability_zone" required>
+                <option value="none">None</option> 
+                <option value="Zone 1">Zone 1</option>
+                <option value="Zone 2">Zone 2</option>
+                <option value="Zone 3">Zone 3</option>
+            </select>
+        </div>
+        
+
+        <div class="form-group">
+            <label for="aks_name" style="color: aliceblue;">AKS Name:</label>
+            <input type="text" class="form-control" id="aks_name" name="aks_name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="aks_version" style="color: aliceblue;">AKS Version:</label>
+            <input type="text" class="form-control" id="aks_version" name="aks_version" required>
+        </div>
+
+        <div class="form-group">
+            <label for="node_count" style="color: aliceblue;">Node Count:</label>
+            <input type="text" class="form-control" id="node_count" name="node_count" required>
+        </div>
+
+        <div class="form-group">
+            <label for="cluster_type" style="color: aliceblue;">Cluster Type:</label>
+            <select class="form-control" id="cluster_type" name="cluster_type" required>
+                <option value="Public">Public</option>
+                <option value="Private">Private</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="vm_name" style="color: aliceblue;"> VM Name:</label>
+            <input type="text" class="form-control" id="vm_name" name="vm_name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="vm_pass" style="color: aliceblue;"> VM Password:</label>
+            <input type="password" class="form-control" id="vm_pass" name="vm_pass" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Cluster</button>
+    </form>
+</div>
+{% endblock content %}

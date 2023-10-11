@@ -268,7 +268,7 @@ def submit_form_azure():
     
     ## ending the script
 
-    return render_template('submit.html')
+    return render_template('create_aks.html')
 
 @app.route('/azure_form', methods=['GET'])
 def azure_form():
@@ -292,8 +292,16 @@ def create_aks():
     aks_version = request.form.get('aks_version')
     node_count = request.form.get('node_count')
     cluster_type = request.form.get('cluster_type')
-    vm_name = request.form.get('vm_name')
-    vm_pass = request.form.get('vm_pass')
+    
+    # Initialize variables for vm_name and vm_pass
+    vm_name = None
+    vm_pass = None
+
+    # Process form data based on Cluster Type
+    if cluster_type == 'Private':
+        vm_name = request.form.get('vm_name')
+        vm_pass = request.form.get('vm_pass')
+
 
     # Create the content for terraform.tfvars
     with open('terraform.tfvars', 'w') as f:
@@ -304,8 +312,9 @@ def create_aks():
         f.write(f'aks_version = "{aks_version}"\n')
         f.write(f'node_count = "{node_count}"\n')
         f.write(f'cluster_type = "{cluster_type}"\n')
-        f.write(f'vm_name = "{vm_name}"\n') 
-        f.write(f'vm_pass = "{vm_pass}"\n') 
+        if vm_name is not None:
+            f.write(f'vm_name = "{vm_name}"\n')
+            f.write(f'vm_pass = "{vm_pass}"\n')
 
     # You can also redirect the user to a success page if needed
     return render_template('success.html')

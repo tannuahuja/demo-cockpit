@@ -1,28 +1,36 @@
 {% extends "layout.html" %}
 {% block content %}
 <head>
-    <title>create aks</title>
+    <title>Create AKS</title>
 </head>
 <style>
-       .form-group {
-            margin-bottom: 20px;
-            /* size: 10px; */
-        }
+    .form-group {
+        margin-bottom: 20px;
+    }
 
-        .form-control {
-            width: 350px; 
-        }
-
-        .form-control {
-            height: 30px; 
-        }
-
+    .form-control {
+        width: 350px;
+        height: 30px;
+    }
 </style>
+
+<script>
+    // Function to show/hide fields based on "Cluster Type" selection
+    function toggleVmFields() {
+        var clusterType = document.getElementById("cluster_type").value;
+        var vmFields = document.getElementById("vmFields");
+
+        if (clusterType === "Private") {
+            vmFields.style.display = "block";
+        } else {
+            vmFields.style.display = "none";
+        }
+    }
+</script>
 
 <div class="container">
     <h2>Create AKS Cluster</h2>
     <form id="aksForm" action="/create_aks" method="post">
-    <!-- <form id="aksForm" action="/create_aks" method="get"> -->
 
         <div class="form-group">
             <label for="resource_group" style="color: aliceblue;">Resource Group Name:</label>
@@ -30,23 +38,22 @@
         </div>
 
         <div class="form-group">
-            <label for="Region" style="color: aliceblue;" >Region:</label>
+            <label for="Region" style="color: aliceblue;">Region:</label>
             <select class="form-control" id="Region" name="Region" required>
                 <option value="East US">East US</option>
                 <option value="West US">West US</option>
             </select>
         </div>
-        
+
         <div class="form-group">
             <label for="availability_zone" style="color: aliceblue;">Availability Zone:</label>
             <select class="form-control" id="availability_zone" name="availability_zone" required>
-                <option value="none">None</option> 
+                <option value="none">None</option>
                 <option value="Zone 1">Zone 1</option>
                 <option value="Zone 2">Zone 2</option>
                 <option value="Zone 3">Zone 3</option>
             </select>
         </div>
-        
 
         <div class="form-group">
             <label for="aks_name" style="color: aliceblue;">AKS Name:</label>
@@ -65,20 +72,22 @@
 
         <div class="form-group">
             <label for="cluster_type" style="color: aliceblue;">Cluster Type:</label>
-            <select class="form-control" id="cluster_type" name="cluster_type" required>
+            <select class="form-control" id="cluster_type" name="cluster_type" required onchange="toggleVmFields()">
                 <option value="Public">Public</option>
                 <option value="Private">Private</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="vm_name" style="color: aliceblue;"> VM Name:</label>
-            <input type="text" class="form-control" id="vm_name" name="vm_name" required>
-        </div>
+        <div id="vmFields" style="display: none;">
+            <div class="form-group">
+                <label for="vm_name" style="color: aliceblue;"> VM Name:</label>
+                <input type="text" class="form-control" id="vm_name" name="vm_name" required>
+            </div>
 
-        <div class="form-group">
-            <label for="vm_pass" style="color: aliceblue;"> VM Password:</label>
-            <input type="password" class="form-control" id="vm_pass" name="vm_pass" required>
+            <div class="form-group">
+                <label for="vm_pass" style="color: aliceblue;"> VM Password:</label>
+                <input type="password" class="form-control" id="vm_pass" name="vm_pass" required>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Create Cluster</button>

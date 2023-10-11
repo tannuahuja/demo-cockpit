@@ -27,13 +27,13 @@ class User(db.Model,UserMixin):
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    todo = db.relationship('todo', backref='items', lazy=True)
+    form = db.relationship('form', backref='items', lazy=True)
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}')"
 
 
-class todo(db.Model):
+class form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200))
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now)
@@ -41,7 +41,7 @@ class todo(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return f"todo('{self.content}', '{self.date_posted}')"
+        return f"form('{self.content}', '{self.date_posted}')"
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
@@ -51,6 +51,11 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), EqualTo('password')])
+    # username = StringField('Username')
+    # email = StringField('Email')
+    # password = PasswordField('Password', validators=[DataRequired()])
+    # confirm_password = PasswordField('Confirm Password',
+    #                                  validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
 
     def validate_username(self, username):
@@ -69,6 +74,10 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+    # email = StringField('Email')
+    # password = PasswordField('Password')
+    # remember = BooleanField('Remember Me')
+    # submit = SubmitField('Login')
 
 
 @login_manager.user_loader
@@ -84,8 +93,8 @@ def home():
 @app.route("/index")
 @login_required
 def index():
-    todos=todo.query.filter_by(user_id=current_user.id)
-    return render_template('index.html',todos=todos)
+    forms=form.query.filter_by(user_id=current_user.id)
+    return render_template('index.html',forms=forms)
 
 
 @app.route("/about")
@@ -142,9 +151,9 @@ def account():
 @login_required
 def add():
     user_id=current_user.id
-    if request.form['todoitem'] != "" :
-        todos=todo(content=request.form['todoitem'],complete=False,user_id=user_id)
-        db.session.add(todos)
+    if request.form['formitem'] != "" :
+        forms=form(content=request.form['formitem'],complete=False,user_id=user_id)
+        db.session.add(forms)
         db.session.commit()
     else:
         flash('cannot add empty list', 'danger')
@@ -156,17 +165,17 @@ def add():
 @app.route("/complete/<int:id>")
 @login_required
 def complete(id):
-    ToDo= todo.query.get(id)
+    form= form.query.get(id)
 
-    if not ToDo:
+    if not form:
         return redirect("/index")
 
-    if ToDo.complete:
-        ToDo.complete=False
+    if form.complete:
+        form.complete=False
     else:
-        ToDo.complete=True
+        form.complete=True
 
-    db.session.add(ToDo)
+    db.session.add(form)
     db.session.commit()
     
     return redirect("/index")
@@ -174,11 +183,11 @@ def complete(id):
 @app.route("/delete/<int:id>")
 @login_required
 def delete(id):
-    ToDo=todo.query.get(id)
-    if not ToDo:
+    form=form.query.get(id)
+    if not form:
         return redirect("/index")
     
-    db.session.delete(ToDo)
+    db.session.delete(form)
     db.session.commit()
 
     return redirect("/index")
@@ -187,4 +196,4 @@ def delete(id):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    app.run()

@@ -88,6 +88,10 @@
         <h2>Provide AWS Credentials</h2>
         <form id="k8sForm" action="/submit_form" method="post" onsubmit="return validateForm()">
             <div class="form-group">
+                <label for="User_name">User_name:</label>
+                <input type="text" class="form-control"  name="User_name" required>
+            </div>
+            <div class="form-group">
                 <label for="Access_key">Access Key:</label>
                 <input type="text" class="form-control" id="Access_key" name="Access_key" required>
             </div>

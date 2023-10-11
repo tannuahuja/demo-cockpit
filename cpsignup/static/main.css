@@ -8,9 +8,9 @@ body {
     color: #444444;
   }
   
-  body{
+  /* body{
     background-image: url( {{url_for('static', filename='baground.png')}})
-  }
+  } */
 
   .content-section {
     background: #ffffff;

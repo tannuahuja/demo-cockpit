@@ -1,12 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
 <head>
-    <title>Create AKS</title>
+    <title>Create GCP</title>
 </head>
 <style>
-    
-    .btn-custom-light-blue {
-        background-color: #033340; /* Define your custom color code */
+     .btn-custom-light-blue {
+        background-color: #0f4d5e; /* Define your custom color code */
         color: white; /* Text color */
     }
     body {
@@ -84,8 +83,8 @@ input:checked + .slider:before {
 </style>
 
 <script>
-    // Function to hide the flash message after a delay
-    function hideFlashMessage() {
+     // Function to hide the flash message after a delay
+     function hideFlashMessage() {
         var flashMessage = document.querySelector('.alert');
         if (flashMessage) {
             setTimeout(function () {
@@ -96,7 +95,6 @@ input:checked + .slider:before {
 
     // Call the function when the page loads
     window.addEventListener('load', hideFlashMessage);
-
     // Function to show/hide fields based on "Cluster Type" selection
     function toggleVmFields() {
         var clusterType = document.getElementById("cluster_type").value;
@@ -124,60 +122,43 @@ input:checked + .slider:before {
 </script>
 
 <div class="container">
-    <h2>Create AKS Cluster</h2>
-    <form id="aksForm" action="/create_aks" method="post" onsubmit="return checkforvaldation()">
+    <h2>Create GKE Cluster</h2>
+    <form id="gkeForm" action="/create_gke" method="post" onsubmit="return checkforvaldation()">
 
         <div class="form-group">
-            <label for="resource_group" style="color: aliceblue;">Resource Group Name:</label>
-            <input type="text" class="form-control" id="resource_group" name="resource_group" required>
+            <label for="project" style="color: aliceblue;">Project:</label>
+            <input type="text" class="form-control" id="project" name="project" required>
         </div>
 
         <div class="form-group">
-            <label for="Region" style="color: aliceblue;">Region:</label>
-            <select class="form-control" id="Region" name="Region" required>
-                <option value="East US">East US</option>
-                <option value="West US">West US</option>
-                <option value="East Asia">East Asia</option>
-                <option value="Australia East">Australia East</option>
-                <option value="Canada Central">Canada Central</option>
+            <label for="gke_name" style="color: aliceblue;">GKE Name:</label>
+            <input type="text" class="form-control" id="gke_name" name="gke_name" required>
+        </div>
+
+
+        <div class="form-group">
+            <label for="region" style="color: aliceblue;">Region:</label>
+            <select class="form-control" id="region" name="region" required>
+                <option value="us-central1">us-central1</option>
+                <option value="us-east1">us-east1</option>
+                <option value="us-west1">us-west1</option>
+                <option value="asia-east1">asia-east1</option>
+                <option value="asia-south1">asia-south1</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label style="color: aliceblue;">Availability s:</label>
-            <div class="multiselect-dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Select Zones
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="none" name="availability_zones[]">  None
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="1" name="availability_zones[]">  1
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="2" name="availability_zones[]">  2
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="3" name="availability_zones[]">  3
-                    </label>
-                    
-                    
-                </div>
-            </div>
-        </div>
-        
-        
+        <!-- <div class="form-group">
+            <label for="location" style="color: aliceblue;">Location:</label>
+            <select class="form-control" id="location" name="location" required>
+                <option value="East US">East US</option>
+                <option value="West US">West US</option>
+            </select>
+        </div> -->
+
 
         <div class="form-group">
-            <label for="aks_name" style="color: aliceblue;">AKS Name:</label>
-            <input type="text" class="form-control" id="aks_name" name="aks_name" required>
-        </div>
-
-        <div class="form-group">
-            <label for="aks_version" style="color: aliceblue;">AKS Version:</label>
-            <input type="text" class="form-control" id="aks_version" name="aks_version" required>
+            <label for="gke_version" style="color: aliceblue;">GKE Version:</label>
+            <input type="text" class="form-control" id="gke_version" name="gke_version" required>
         </div>
 
         <div class="form-group">
@@ -192,18 +173,7 @@ input:checked + .slider:before {
                 <option value="Private">Private</option>
             </select>
         </div>
-       
-        <div id="vmFields" style="display: none;">
-            <div class="form-group">
-                <label for="vm_name" style="color: aliceblue;"> VM Name:</label>
-                <input type="text" class="form-control" id="vm_name" name="vm_name">
-            </div>
-
-            <div class="form-group">
-                <label for="vm_pass" style="color: aliceblue;"> VM Password:</label>
-                <input type="password" class="form-control" id="vm_pass" name="vm_pass">
-            </div>
-        </div>
+        
         <div class="form-group">
             <label for="cost_analysis" style="color: aliceblue;">Need Cost Analysis & Optimization:</label>
         </div>

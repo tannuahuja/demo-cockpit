@@ -14,10 +14,17 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <style>
+         .heading-margin {
+        margin-bottom: 40px; /* Adjust the margin as needed */
+    }
+         .btn-custom-light-blue {
+        background-color: #0f4d5e; /* Define your custom color code */
+        color: white; /* Text color */
+    }
         body {
             color: white;
             background-image: url('/static/k8s.jpg');
-            background-size: cover;
+            background-size: 100% 100%;
             background-repeat: no-repeat;
             background-attachment: fixed;
             animation: backgroundAnimation 10s linear infinite;
@@ -44,9 +51,6 @@
 
         .form-control {
             width: 350px; 
-        }
-
-        .form-control {
             height: 30px; 
         }
 
@@ -85,7 +89,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>Provide AWS Credentials</h2>
+        <h2 class="heading-margin">Provide AWS Credentials</h2>
         <form id="k8sForm" action="/submit_form" method="post" onsubmit="return validateForm()">
             <div class="form-group">
                 <label for="User_name">User_name:</label>
@@ -101,7 +105,7 @@
                 <input type="password" class="form-control" id="secret_Access_key" name="secret_Access_key" required>
             </div>
         
-            <button type="submit" class="btn btn-primary">SUBMIT</button>
+            <button type="submit" class="btn btn-custom-light-blue">Submit</button>
         </form>
     </div>
 

@@ -87,6 +87,21 @@ def load_user(user_id):
 def home():
     return render_template('home.html')
 
+def get_authenticated_user_id():
+    username = session.get('username')
+    return username
+
+
+@app.route('/dashboard')
+def dashboard():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('dashboard.html', username=username)
+    else:
+        return redirect(url_for('login'))  # Redirect to login if not authenticated
+
+
+
 @app.route('/cloud')
 def cloud():
     return render_template('cloud.html')
@@ -116,7 +131,7 @@ def submit_form_aws():
 
     # Azure Resource Group and Key Vault Configuration
     resource_group_name = "prashant-rg"  
-    key_vault_name = User_name + User_Id  
+    key_vault_name = User_name + User_Id
     secrets_file_path = "./terraform.tfvars"
 
     
@@ -184,9 +199,51 @@ def submit_form_aws():
 
     ## ending the script
 
-    return render_template('./create_aks.html')
+    return render_template('./create_aws.html')
 
+@app.route('/aws_form', methods=['GET'])
+def aws_form():
+    return render_template('create_aws.html')
 
+@app.route('/create_aws_form', methods=['GET'])
+def create_aws_form():
+    return render_template('create_aws.html')
+
+@app.route('/success', methods=['GET'])
+def success_aws():
+    return render_template('success.html')
+
+@app.route('/create_aws', methods=['POST'])
+def create_aws():
+    # Retrieve form data
+    eks_name = request.form.get('eks_name')
+    Region = request.form.get('Region')
+    instance_type = request.form.get('instance_type')
+    eks_version = request.form.get('eks_version')
+    desired_size = request.form.get('desired_size')
+    max_size = request.form.get('max_size')
+    min_size = request.form.get('min_size')
+    cluster_type = request.form.get('cluster_type')
+    
+    eks_version = float(eks_version)
+
+    # Create the content for terraform.tfvars
+    with open('terraform.tfvars', 'w') as f:
+        f.write(f'eks_name = "{eks_name}"\n') 
+        f.write(f'Region = "{Region}"\n')
+        f.write(f'instance_type = "{instance_type}"\n')
+        f.write(f'eks_version = "{eks_version}"\n')
+        f.write(f'desired_size = "{desired_size}"\n')
+        f.write(f'max_size = "{max_size}"\n')
+        f.write(f'min_size = "{min_size}"\n')
+        f.write(f'cluster_type = "{cluster_type}"\n')
+       
+           
+
+    # You can also redirect the user to a success page if needed
+    return render_template('success.html')
+
+#azure form
 @app.route('/azure')
 def azure():
     return render_template('azure.html')
@@ -212,7 +269,7 @@ def submit_form_azure():
 
     # Azure Resource Group and Key Vault Configuration
     resource_group_name = "prashant-rg"  
-    key_vault_name = User_name + User_Id  
+    key_vault_name = User_name + User_Id
     secrets_file_path = "./terraform.tfvars"
 
 
@@ -267,8 +324,9 @@ def submit_form_azure():
     with open(secrets_file_path, "w"):         pass 
     
     ## ending the script
-
+    flash('Credential Succesfully added.', 'success')
     return render_template('create_aks.html')
+
 
 @app.route('/azure_form', methods=['GET'])
 def azure_form():
@@ -279,7 +337,7 @@ def create_aks_form():
     return render_template('create_aks.html')
 
 @app.route('/success', methods=['GET'])
-def success():
+def success_aks():
     return render_template('success.html')
 
 @app.route('/create_aks', methods=['POST'])
@@ -287,11 +345,13 @@ def create_aks():
     # Retrieve form data
     resource_group = request.form.get('resource_group')
     Region = request.form.get('Region')
-    availability_zone = request.form.get('availability_zone')
+    availability_zones = request.form.getlist('availability_zones[]')  # Use getlist to get multiple selected values
     aks_name = request.form.get('aks_name')
     aks_version = request.form.get('aks_version')
     node_count = request.form.get('node_count')
     cluster_type = request.form.get('cluster_type')
+    
+    aks_version = float(aks_version)
     
     # Initialize variables for vm_name and vm_pass
     vm_name = None
@@ -302,12 +362,14 @@ def create_aks():
         vm_name = request.form.get('vm_name')
         vm_pass = request.form.get('vm_pass')
 
+    # Convert availability_zones to a string containing an array
+    availability_zones_str = '[' + ', '.join(['"' + zone + '"' for zone in availability_zones]) + ']'
 
     # Create the content for terraform.tfvars
     with open('terraform.tfvars', 'w') as f:
         f.write(f'resource_group = "{resource_group}"\n')
         f.write(f'Region = "{Region}"\n')
-        f.write(f'availability_zone = "{availability_zone}"\n')
+        f.write(f'availability_zones = {availability_zones_str}\n')
         f.write(f'aks_name = "{aks_name}"\n') 
         f.write(f'aks_version = "{aks_version}"\n')
         f.write(f'node_count = "{node_count}"\n')
@@ -324,7 +386,7 @@ def create_aks():
 def gcp():
     return render_template('gcp.html')
 
-@app.route('/submit_form', methods=['POST'])
+@app.route('/submit_form_gke', methods=['POST'])
 def submit_form_gcp():
     # Check if a file was uploaded
     if 'jsonFile' not in request.files:
@@ -355,6 +417,7 @@ def submit_form_gcp():
 
     # Azure Key Vault and Secrets Configuration
     key_vault_name = User_name + User_Id
+
     resource_group_name = "prashant-rg"
     location = "westus2"
     secrets_file_path = json_file.filename
@@ -404,12 +467,64 @@ def submit_form_gcp():
         
 
     print("Secret has been stored in Azure Key Vault.")
-    os.remove(secrets_file_path)     
+    os.remove(secrets_file_path)    
+
     
 
-   
+    return render_template('create_gke.html')
+    
+#gcp
+@app.route('/gcp_form', methods=['GET'])
+def gcp_form():
+    return render_template('create_gke.html')
 
-    return render_template('.submit.html')
+@app.route('/create_gke_form', methods=['GET'])
+def create_gke_form():
+    return render_template('create_gke.html')
+
+@app.route('/success', methods=['GET'])
+def success_gke():
+    return render_template('success.html')
+
+@app.route('/create_gke', methods=['POST'])
+def create_gke():
+    # Retrieve form data
+    resource_group = request.form.get('resource_group')
+    Region = request.form.get('Region')
+    availability_zone = request.form.get('availability_zone')
+    gke_name = request.form.get('gke_name')
+    gke_version = request.form.get('gke_version')
+    node_count = request.form.get('node_count')
+    cluster_type = request.form.get('cluster_type')
+    
+    gke_version = float(gke_version)
+
+    # Initialize variables for vm_name and vm_pass
+    vm_name = None
+    vm_pass = None
+
+    # Process form data based on Cluster Type
+    if cluster_type == 'Private':
+        vm_name = request.form.get('vm_name')
+        vm_pass = request.form.get('vm_pass')
+
+
+    # Create the content for terraform.tfvars
+    with open('terraform.tfvars', 'w') as f:
+        f.write(f'resource_group = "{resource_group}"\n')
+        f.write(f'Region = "{Region}"\n')
+        f.write(f'availability_zone = "{availability_zone}"\n')
+        f.write(f'gke_name = "{gke_name}"\n') 
+        f.write(f'gke_version = "{gke_version}"\n')
+        f.write(f'node_count = "{node_count}"\n')
+        f.write(f'cluster_type = "{cluster_type}"\n')
+        if vm_name is not None:
+            f.write(f'vm_name = "{vm_name}"\n')
+            f.write(f'vm_pass = "{vm_pass}"\n')
+
+    # You can also redirect the user to a success page if needed
+    return render_template('success.html')
+
 
 @app.route("/index")
 @login_required
@@ -443,7 +558,7 @@ def register():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('cloud'))
+        return redirect(url_for('dashboard'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -451,7 +566,7 @@ def login():
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             flash('Login successful.', 'success')
-            return redirect(next_page) if next_page else redirect(url_for('cloud'))
+            return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
@@ -518,4 +633,4 @@ def delete(id):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=4000)

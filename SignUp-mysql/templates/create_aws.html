@@ -1,12 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
 <head>
-    <title>Create AKS</title>
+    <title>Create EKS</title>
 </head>
 <style>
-    
-    .btn-custom-light-blue {
-        background-color: #033340; /* Define your custom color code */
+     .btn-custom-light-blue {
+        background-color: #0f4d5e; /* Define your custom color code */
         color: white; /* Text color */
     }
     body {
@@ -84,8 +83,8 @@ input:checked + .slider:before {
 </style>
 
 <script>
-    // Function to hide the flash message after a delay
-    function hideFlashMessage() {
+     // Function to hide the flash message after a delay
+     function hideFlashMessage() {
         var flashMessage = document.querySelector('.alert');
         if (flashMessage) {
             setTimeout(function () {
@@ -96,7 +95,6 @@ input:checked + .slider:before {
 
     // Call the function when the page loads
     window.addEventListener('load', hideFlashMessage);
-
     // Function to show/hide fields based on "Cluster Type" selection
     function toggleVmFields() {
         var clusterType = document.getElementById("cluster_type").value;
@@ -124,65 +122,59 @@ input:checked + .slider:before {
 </script>
 
 <div class="container">
-    <h2>Create AKS Cluster</h2>
-    <form id="aksForm" action="/create_aks" method="post" onsubmit="return checkforvaldation()">
-
+    <h2>Create EKS Cluster</h2>
+    <form id="awsForm" action="/create_aws" method="post" onsubmit="return checkforvaldation()">
         <div class="form-group">
-            <label for="resource_group" style="color: aliceblue;">Resource Group Name:</label>
-            <input type="text" class="form-control" id="resource_group" name="resource_group" required>
+            <label for="eks_name" style="color: aliceblue;">EKS Name:</label>
+            <input type="text" class="form-control" id="eks_name" name="eks_name" required>
         </div>
 
         <div class="form-group">
             <label for="Region" style="color: aliceblue;">Region:</label>
             <select class="form-control" id="Region" name="Region" required>
-                <option value="East US">East US</option>
-                <option value="West US">West US</option>
-                <option value="East Asia">East Asia</option>
-                <option value="Australia East">Australia East</option>
-                <option value="Canada Central">Canada Central</option>
+                <option value="US East (N. Virginia)">US East (N. Virginia)</option>
+                <option value="Asia Pacific (Mumbai)">Asia Pacific (Mumbai)</option>
+                <option value="US East (Ohio)">US East (Ohio)</option>
+                <option value="US West (N. California)">US West (N. California)</option>
+                <option value="Middle East (Bahrain)">Middle East (Bahrain)</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label style="color: aliceblue;">Availability s:</label>
-            <div class="multiselect-dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Select Zones
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="none" name="availability_zones[]">  None
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="1" name="availability_zones[]">  1
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="2" name="availability_zones[]">  2
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" value="3" name="availability_zones[]">  3
-                    </label>
-                    
-                    
-                </div>
-            </div>
-        </div>
-        
-        
-
-        <div class="form-group">
-            <label for="aks_name" style="color: aliceblue;">AKS Name:</label>
-            <input type="text" class="form-control" id="aks_name" name="aks_name" required>
+            <label for="instance_type" style="color: aliceblue;">Instance type:</label>
+            <select class="form-control" id="instance_type" name="instance_type" required>
+                <option value="t2.micro">t2.micro</option>
+                <option value="t3.medium">t3.medium</option>
+                <option value="m5.large">m5.large</option>
+                <option value="r5.large">r5.large</option>
+                <option value="i3.large">i3.large</option>
+            </select>        
         </div>
 
         <div class="form-group">
-            <label for="aks_version" style="color: aliceblue;">AKS Version:</label>
-            <input type="text" class="form-control" id="aks_version" name="aks_version" required>
+            <label for="eks_version" style="color: aliceblue;">EKS Version:</label>
+            <select class="form-control" id="eks_version" name="eks_version" required>
+                <option value="1.23">1.23</option>
+                <option value="1.24">1.24</option>
+                <option value="1.25">1.25</option>
+                <option value="1.26">1.26</option>
+                <option value="1.27">1.27</option>
+            </select>       
         </div>
 
         <div class="form-group">
-            <label for="node_count" style="color: aliceblue;">Node Count:</label>
-            <input type="number" class="form-control" id="node_count" name="node_count" required>
+            <label for="desired_size" style="color: aliceblue;">Desired size:</label>
+            <input type="number" class="form-control" id="desired_size" name="desired_size" required>
+        </div>
+
+        <div class="form-group">
+            <label for="max_size" style="color: aliceblue;">Max size:</label>
+            <input type="number" class="form-control" id="max_size" name="max_size" required>
+        </div>
+
+        <div class="form-group">
+            <label for="min_size" style="color: aliceblue;">Min size:</label>
+            <input type="number" class="form-control" id="min_size" name="min_size" required>
         </div>
 
         <div class="form-group">
@@ -192,18 +184,7 @@ input:checked + .slider:before {
                 <option value="Private">Private</option>
             </select>
         </div>
-       
-        <div id="vmFields" style="display: none;">
-            <div class="form-group">
-                <label for="vm_name" style="color: aliceblue;"> VM Name:</label>
-                <input type="text" class="form-control" id="vm_name" name="vm_name">
-            </div>
-
-            <div class="form-group">
-                <label for="vm_pass" style="color: aliceblue;"> VM Password:</label>
-                <input type="password" class="form-control" id="vm_pass" name="vm_pass">
-            </div>
-        </div>
+        
         <div class="form-group">
             <label for="cost_analysis" style="color: aliceblue;">Need Cost Analysis & Optimization:</label>
         </div>

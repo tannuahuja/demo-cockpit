@@ -19,3 +19,9 @@ Werkzeug==2.3.3
 python-decouple
 
 mysql-connector-python
+
+azure-identity
+
+azure.keyvault
+
+azure-mgmt-keyvault

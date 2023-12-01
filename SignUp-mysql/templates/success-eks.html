@@ -38,11 +38,16 @@ body {
 </head>
 <body>
     <div class="dashboard-content">
-        <h2><p style="color: aliceblue;">Cluster created successfully!</p></h2>
-          <a href ="/cloud">
-            <button type="submit" class="btn btn-custom-light-blue button-spacing">Check logs</button>
-          </a>
-  
+        <h2><p style="color: aliceblue;">Pipeline created successfully!!!</p></h2>
+        <h4>EKS Details</h4>
+        <ul>
+        <strong><li>EKS Name: {{eks_name }}</li></strong>
+        <strong><li>Region: {{ Region }}</li></strong>
+
+           
+        </ul>
+
+    
           
       </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

@@ -1,0 +1,9 @@
+resource_group = "tannu-rg"
+Region = "East US"
+availability_zones = ["2", "3"]
+aks_name = "tannu-aks"
+aks_version = "2.0"
+node_count = "2"
+cluster_type = "Private"
+vm_name = "xcvbn"
+vm_pass = "cvbnm"

@@ -70,18 +70,18 @@
         var secretKeyRegex = /^[A-Za-z0-9+/=]{40}$/;
 
         // Test the Access Key ID against the regular expression
-        if (!accessKeyRegex.test(accessKey)) {
-            alert('Access Key ID should start with \'AKIA\' and followed by 16 uppercase letters and numbers.');
-            accessKeyInput.focus();
-            return false;
-        }
+        // if (!accessKeyRegex.test(accessKey)) {
+        //     alert('Access Key ID should start with \'AKIA\' and followed by 16 uppercase letters and numbers.');
+        //     accessKeyInput.focus();
+        //     return false;
+        // }
 
-        // Test the Secret Access Key against the regular expression
-        if (!secretKeyRegex.test(secretKey)) {
-            alert('Secret Access Key should be a 40-character base64 string.');
-            secretKeyInput.focus();
-            return false;
-        }
+        // // Test the Secret Access Key against the regular expression
+        // if (!secretKeyRegex.test(secretKey)) {
+        //     alert('Secret Access Key should be a 40-character base64 string.');
+        //     secretKeyInput.focus();
+        //     return false;
+        // }
 
         return true;
     }

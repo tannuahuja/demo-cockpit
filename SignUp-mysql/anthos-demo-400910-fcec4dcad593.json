@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "anthos-demo-400910",
+  "private_key_id": "fcec4dcad5937d4e418a44de4f0bb99ac746ade6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCsutNhtU22+tZU\nuRJsO2MyLe+KzGaH4v0UZdRQlDvSb2Bn7cpBCAbwFO4HTyUocpJAbOQPk3O4EOC7\npyB6MuULtj+ourOhJwkpHr2M+i2mjCu2xPk7polPfwrine7lIU7zLxSc8NaIcGwJ\npgSF1Uy63jMlVJyMz0SQWATbtoQTYdDs026+4ZRCuhwE4boGfCnfFVzLDh1VixlM\nKjCyoyUu7buLZ3FornVbhxUGa2N8Pyp/8T60kmYmobKx6jQa2nuKeIxR2MFf8nm/\nEBtAzWp0HvsFnPEpVQuqLdPiTJJ8T7f7mT2j/VgppPtQriEnYspblSFTG+Mys9g1\nQiRwPqhzAgMBAAECggEATgZGnghsBo/gaX0AWWuqL2yYnDYgypk6gRBOi+ep7jDp\nd4jup9mcaK7LpvmVa2P1tKx7iJ2u1CKroZipDwoWdOfqcamEovMjLDP6o8gO/wCq\nbnEjtFJSDFry69MzqsUVCLznrs0L264M337i5CGp+2+L4v0JioHGEv3vk+AqYSY7\nmtLG6601X20DkVzbualNZZV+bDB2YxBQ8BoQghlcuZdaOeo46eft9AwFlQO5QxUY\nJ5DPDAgWqEniOVpExCnfpQoG3Xz7yy2Ih5tO0VnEbAV0ZyFZZzivOzclHF6SWJ7k\nmpEuC+JmZLJJzLAtpBpkMtHfOizMCDD4YyPi8kq4QQKBgQDmRm3Fa/jnJqmZTexE\ntPqFLnYrFD8yT/rxVTuyiY4JR7eZiGPwr0YnkJfb4dn5yoR7r/c+RRRYTZ3Bcfb1\n8BprSHElXQ+pF/l6D3W1irhvWCi++g51cAiKbSGPPaZLAZSGXqP9ge8LcK4YI2ow\nowVu44ugqmMxup1CDHBvIiDJaQKBgQDABqzDYil0PQIPi1ZV0dxYouY1DgTkAQsE\n/ZTddEyi0BrO805UuYnbeSWVoJifWoH2RPxmgMt6SKq/cmmgNVi14kUB9TOwnR8e\nkJyoxoHR7odweninBoUkVK/XTwH0H+wGMK0XNDYyX3CWdxkHIuyyAJ1kMO+062cA\nzJmesvdrewKBgGyqybyDgncakKhu1FNsEFjvHwafTF9izOo8LarILQYGGQdUDM2U\n+QdMvc0e3K17O1/fH078bGhrYEncjQ1sXBtKmVJngy9px+opB4Q/TWAF+1x8Rnx2\n/SDN9StSjXoR6dQrLzo/qd39M7riY4dGNxcoPEj6f0sFZJa5pglb0psZAoGBAKKq\nxN06oX07VSyPz5IhlfRsAnF9L71p+MjAe8Phii399kfLqlZxWgvWo3UON1v+kstp\nAxteDYDIYASPylSR/FUPmX+gFKqPX1ZIEL2Uc1LAKnGo/d4X0t/E8bSF1FTWWd2g\njHB0pVikqr57o3L9Ld9YT/wYzGbJZ1cw+w2J87hTAoGAbqrppPgbpV7P7K9inHDa\n/cJosl8A7vtmsAUFRtL0FpwI0UCpqQWoMfSE9VCsyg1uRk3oL8KP42Ef5/91fdaF\ngxY7mOsbqXGBfVGif4cFxGEYoyrOWajSz/9xd6Q46T2/nYQL/Q0/2zvYAPU6Stqo\nmRLUVZNnF5Pwhx7aV6rYQN4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "anthosdemo@anthos-demo-400910.iam.gserviceaccount.com",
+  "client_id": "109640946745649127777",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/anthosdemo%40anthos-demo-400910.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

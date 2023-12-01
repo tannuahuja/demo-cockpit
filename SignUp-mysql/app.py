@@ -1,29 +1,42 @@
-from flask import Flask, render_template, url_for, flash, redirect,request
+from flask import Flask, render_template, url_for, flash, redirect, request
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager,UserMixin,login_user, current_user, logout_user, login_required
+from flask_login import LoginManager, UserMixin, login_user, current_user, logout_user, login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo,ValidationError
-from flask import Flask, request, render_template, redirect, url_for
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from decouple import config
-from flask import Flask, request, render_template
-from azure.identity import ClientSecretCredential
-from azure.keyvault.secrets import SecretClient
-from azure.mgmt.keyvault import KeyVaultManagementClient
- 
 import os
 import subprocess
 import random
 import base64
- 
+from upload_tf_file import upload_file_to_gitlab
+import json
+from azure.identity import ClientSecretCredential
+from azure.keyvault.secrets import SecretClient
+from azure.mgmt.keyvault import KeyVaultManagementClient
+from flask import Flask, jsonify
+import hcl
+# Your Flask setup code
+
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+
+
+
+# pipeline trigger token : glptt-e37d81a289c6faf58efd9a34daaa476a3f18e6e1
+gitlab_url = "https://gitlab.com"
+project_id = "51819357"
+access_token = "glpat-EmyFa2Kj5NCy8gUiu4qG"    
+branch_name = "featurebrach1"
+
 app = Flask(__name__, static_url_path='/static')
  
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
  
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quelin.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://manjari:manjari@localhost/creds'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quelin.db[17:12] Manjari Srivastav
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://admin:cockpitpro@cockpit-pro.cdcxjmndyjyl.ap-southeast-2.rds.amazonaws.com:3306/cockpit'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -95,16 +108,80 @@ def get_authenticated_user_id():
     username = session.get('username')
     return username
  
- 
-@app.route('/dashboard')
+#it is the working code for UI 
+# @app.route('/final-dashboard', methods=['GET', 'POST'])
+# def dashboard():
+#     if current_user.is_authenticated:
+#         username = current_user.username
+#         return render_template('final-dashboard.html', username=username)
+#     else:
+#         return redirect(url_for('login'))  
+
+
+
+
+
+@app.route('/final-dashboard', methods=['GET', 'POST'])
 def dashboard():
     if current_user.is_authenticated:
         username = current_user.username
-        return render_template('dashboard.html', username=username)
+        return render_template('final-dashboard.html', username=username)
     else:
-        return redirect(url_for('login'))  # Redirect to login if not authenticated
- 
- 
+        return redirect(url_for('login'))
+
+@app.route('/dashboard-cloud', methods=['GET', 'POST'])
+def dashboard_cloud():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('dashboard-cloud.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/show-details-aws', methods=['GET', 'POST'])
+def show_details_aws():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('show-details-aws.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/show-details-azure', methods=['GET', 'POST'])
+def show_details_azure():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('show-details-azure.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+
+
+@app.route('/show-details-gcp', methods=['GET', 'POST'])
+def show_details_gcp():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('show-details-gcp.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+
+# @app.route('/final-dashboard', methods=['GET', 'POST'])
+# def dashboard():
+#     if current_user.is_authenticated:
+#         username = current_user.username
+#         return render_template('final-dashboard.html', username=username)
+#     else:
+#         return redirect(url_for('login'))
+
+
+# @app.route('/dashboard-cloud', methods=['GET', 'POST'], endpoint='dashboard_cloud')
+# def dashboard_cloud():
+#     if current_user.is_authenticated:
+#         username = current_user.username
+#         return render_template('dashboard-cloud.html', username=username)
+#     else:
+#         return redirect(url_for('login'))
+    
  
 @app.route('/cloud')
 def cloud():
@@ -122,6 +199,18 @@ def submit_form_aws():
     secret_Access_key = request.form.get('secret_Access_key')
     User_name = request.form.get('User_name')
     User_Id = str(int(random.random()))
+
+    user_detail = {
+        "user": User_name,
+        
+    }
+
+    print("User name:", User_name)
+
+    file_name = "user_name.json"
+
+    with open(file_name, 'w') as file:
+        json.dump(user_detail, file)
  
  
  
@@ -249,12 +338,94 @@ def create_aws():
         f.write(f'max_size = "{max_size}"\n')
         f.write(f'min_size = "{min_size}"\n')
         f.write(f'cluster_type = "{cluster_type}"\n')
-       
-           
- 
+
+    file_name = "./user_name.json"
+
+    with open(file_name, 'r') as file:
+        user_data = json.load(file)
+
+    file_name = f'terraform-{user_data["user"]}.tfvars'
+    file_path = f'aws/template/{file_name}'
+
+    tf_config = f'''
+eks_name = "{eks_name}"
+Region = "{Region}"
+instance_type = "{instance_type}"
+eks_version = "{eks_version}"
+desired_size = "{desired_size}"
+max_size = "{max_size}"
+min_size = "{min_size}"
+cluster_type = "{cluster_type}"
+'''
+    print("Configuration:", tf_config)
+
+    print("Configuration:", tf_config)
+
+    
+    print("Uploading tf file to gitlab")
+    upload_file_to_gitlab(file_path, tf_config, project_id, access_token, gitlab_url, branch_name)
+    print("Tf File uploaded successfully")
+
+       # Redirect the user to the success page with the user parameter
+    # return redirect(url_for('show_terraform_data', user=user_data["user"]))
+
+
+    # return render_template('success-eks.html')
+    terraform_data = read_terraform_data()
+
+    if terraform_data is not None:
+        # Render the template with the fetched data
+        print(f"Rendering template with data: {terraform_data}")
+        return render_template('final-dashboard.html',
+                               eks_name=terraform_data.get('eks_name', 'YourDefaultEKSName'),
+                               Region=terraform_data.get('Region', 'YourDefaultRegion'))
+    else:
+        # Render a template or handle the case when the file does not exist
+        print("Rendering file_not_found.html template")
+        return render_template('file_not_found.html') 
+
+    # Handle GET request if needed
+
     # You can also redirect the user to a success page if needed
-    return render_template('success.html')
- 
+    # return render_template('success-eks.html')
+
+
+def read_terraform_data():
+    # File name is fixed as terraform.tfvars
+    file_name = 'terraform.tfvars'
+
+    try:
+        # Read data from the fixed file
+        with open(file_name, 'r') as file:
+            terraform_data = hcl.load(file)
+
+        print(terraform_data)
+
+        return terraform_data
+    except FileNotFoundError:
+        print(f"File not found: {file_name}")
+        return None
+
+read_terraform_data()
+
+
+
+# @app.route('/create_aws', methods=['GET', 'POST'])
+# def show_terraform_data(user):
+#     # Fetch data from the dynamically generated file
+#     terraform_data = read_terraform_data(user)
+
+#     if terraform_data is not None:
+#         # Render the template with the fetched data
+#         print(f"Rendering template with data: {terraform_data}")
+#         return render_template('success-eks.html',
+#                                Region=terraform_data.get('variable', {}).get('Region', {}).get('default', ''),
+#                                eks_name=terraform_data.get('variable', {}).get('eks_name', {}).get('default', ''))
+#     else:
+#         # Render a template or handle the case when the file does not exist
+#         print("Rendering file_not_found.html template")
+#         return render_template('file_not_found.html')
+
 #azure form
 @app.route('/azure')
 def azure():
@@ -279,12 +450,26 @@ def submit_form_azure():
         f.write(f'tenant_id = "{tenant_id}"\n')
    
     ## starting the script
- 
     # Azure Resource Group and Key Vault Configuration
     resource_group_name = "rupali-rg"  
     key_vault_name = User_name + User_Id
     secrets_file_path = "./terraform.tfvars"
- 
+
+
+    user_detail = {
+        "user": User_name,
+        
+    }
+
+    print("User name:", User_name)
+
+    file_name = "user_name.json"
+
+    with open(file_name, 'w') as file:
+        json.dump(user_detail, file)
+
+    
+
  
    # Replace underscores with hyphens in the Key Vault and Resource Group names
     key_vault_name = key_vault_name.replace("_", "-")
@@ -370,7 +555,8 @@ def submit_form_azure():
         
         os.remove(secrets_file_path)     
         
-        with open(secrets_file_path, "w"):         pass
+        with open(secrets_file_path, "w"):
+            pass
     
     ## ending the script
     flash('Credential Succesfully added.', 'success')
@@ -399,38 +585,132 @@ def create_aks():
     aks_version = request.form.get('aks_version')
     node_count = request.form.get('node_count')
     cluster_type = request.form.get('cluster_type')
+
+
+    file_name = "./user_name.json"
+
+    with open(file_name, 'r') as file:
+        user_data = json.load(file)
+
+        
+
+    user_data["rg_name"] = resource_group
+    user_data["Region"] = Region
+    user_data["availability_zones"] = availability_zones
+    user_data["aks_name"] = aks_name
+    user_data["aks_version"] = aks_version
+    user_data["node_count"] = node_count
+    user_data["cluster_type"] = cluster_type
+
+
+    print("user name is:", user_data["user"])
+
+    file_name = f'terraform-{user_data["user"]}.tfvars'
     
     aks_version = float(aks_version)
     
     # Initialize variables for vm_name and vm_pass
     vm_name = None
     vm_pass = None
- 
+
     # Process form data based on Cluster Type
     if cluster_type == 'Private':
         vm_name = request.form.get('vm_name')
         vm_pass = request.form.get('vm_pass')
- 
+
     # Convert availability_zones to a string containing an array
     availability_zones_str = '[' + ', '.join(['"' + zone + '"' for zone in availability_zones]) + ']'
- 
-    # Create the content for terraform.tfvars
+
     with open('terraform.tfvars', 'w') as f:
         f.write(f'resource_group = "{resource_group}"\n')
         f.write(f'Region = "{Region}"\n')
         f.write(f'availability_zones = {availability_zones_str}\n')
-        f.write(f'aks_name = "{aks_name}"\n')
+        f.write(f'aks_name = "{aks_name}"\n') 
         f.write(f'aks_version = "{aks_version}"\n')
         f.write(f'node_count = "{node_count}"\n')
         f.write(f'cluster_type = "{cluster_type}"\n')
         if vm_name is not None:
             f.write(f'vm_name = "{vm_name}"\n')
             f.write(f'vm_pass = "{vm_pass}"\n')
- 
+
+    file_path = f'azure/templates/{file_name}'
+
+    if vm_name is not None:
+        # Include vm_name and vm_pass if vm_name is not None
+        tf_config = f'''
+rg_name = "{resource_group}"
+region = "{Region}"
+availability_zones = "{availability_zones}"
+aks_name = "{aks_name}"
+aks_version = "{aks_version}"
+node_count = "{node_count}"
+vm_name = "{vm_name}"
+vm_pass = "{vm_pass}"'''
+    else:
+        tf_config = f'''
+rg_name = "{resource_group}"
+region = "{Region}"
+availability_zones = "{availability_zones}"
+aks_name = "{aks_name}"
+aks_version = "{aks_version}"
+node_count = "{node_count}"'''
+   
+    print("Configuration:", tf_config)
+    
+    print("Uploading tf file to gitlab")
+    upload_file_to_gitlab(file_path, tf_config, project_id, access_token, gitlab_url, branch_name)
+    print("Tf File uploaded successfully")
+
+    #os.remove("terraform.tfvars")
+    # return json.dumps( {
+    #         "message": 'pipeline is triggered!And the data is stored in tf file ',
+    #         "statusCode": 200
+    #     })
+    # return render_template('success-aks.html')
+
+    # return jsonify(user_data)
+    terraform_data = read_terraform_data()
+
+    if terraform_data is not None:
+        # Render the template with the fetched data
+        print(f"Rendering template with data: {terraform_data}")
+        return render_template('success-aks.html',
+                               rg_name=terraform_data.get('resource_group', 'yourDefaultREsourceGroup'),
+                               region=terraform_data.get('Region', 'YourDefaultRegion'),
+                               aks_name=terraform_data.get('aks_name', 'YourDefaultEKSName'))
+                               
+    else:
+        # Render a template or handle the case when the file does not exist
+        print("Rendering file_not_found.html template")
+        return render_template('file_not_found.html') 
+
+    # Handle GET request if needed
+
     # You can also redirect the user to a success page if needed
-    return render_template('success.html')
- 
- 
+    # return render_template('success-eks.html')
+
+
+def read_terraform_data():
+    # File name is fixed as terraform.tfvars
+    file_name = 'terraform.tfvars'
+
+    try:
+        # Read data from the fixed file
+        with open(file_name, 'r') as file:
+            terraform_data = hcl.load(file)
+
+        print(terraform_data)
+
+        return terraform_data
+    except FileNotFoundError:
+        print(f"File not found: {file_name}")
+        return None
+
+read_terraform_data()
+
+
+
+
 @app.route('/gcp')
 def gcp():
     return render_template('gcp.html')
@@ -449,17 +729,13 @@ def submit_form_gcp():
  
     # Check if the file is a JSON file
     if not json_file.filename.endswith('.json'):
-        return render_template('./file_submit.html')
+        return render_template('./submit.html')
     
- 
- 
     # Specify the directory where you want to save the JSON file
     save_directory = './'
  
     # Save the JSON file with its original filename
     json_file.save(f"{save_directory}/{json_file.filename}")
- 
- 
  
     User_name = request.form.get('User_name')
     User_Id = str(int(random.random()))
@@ -467,10 +743,9 @@ def submit_form_gcp():
     # Azure Key Vault and Secrets Configuration
     key_vault_name = User_name + User_Id
  
-    resource_group_name = "prashant-rg"
+    resource_group_name = "rupali-rg"
     location = "westus2"
     secrets_file_path = json_file.filename
-        
  
         # Create Azure Key Vault if it doesn't exist
     create_kv_command = f"az keyvault create --name {key_vault_name} --resource-group {resource_group_name} --location {location}"
@@ -481,8 +756,6 @@ def submit_form_gcp():
             print(f"Error: Failed to create Azure Key Vault.")
             exit(1)
  
-        
- 
         # Authenticate to Azure
     try:
             # Use Azure CLI to get the access token
@@ -491,13 +764,10 @@ def submit_form_gcp():
             print("Error: Failed to obtain Azure access token. Make sure you are logged into Azure CLI.")
             exit(1)
  
-        
- 
         # Read the entire content of the JSON file
     with open(secrets_file_path, 'r') as json_file:
             secrets_content = json_file.read()
  
-        
  
         # Store the entire JSON content as a secret
     secret_name = "your-secret-name"
@@ -518,7 +788,6 @@ def submit_form_gcp():
     print("Secret has been stored in Azure Key Vault.")
     os.remove(secrets_file_path)    
  
-    
  
     return render_template('create_gke.html')
     
@@ -538,9 +807,8 @@ def success_gke():
 @app.route('/create_gke', methods=['POST'])
 def create_gke():
     # Retrieve form data
-    resource_group = request.form.get('resource_group')
+    project = request.form.get('project')
     Region = request.form.get('Region')
-    availability_zone = request.form.get('availability_zone')
     gke_name = request.form.get('gke_name')
     gke_version = request.form.get('gke_version')
     node_count = request.form.get('node_count')
@@ -557,12 +825,10 @@ def create_gke():
         vm_name = request.form.get('vm_name')
         vm_pass = request.form.get('vm_pass')
  
- 
     # Create the content for terraform.tfvars
     with open('terraform.tfvars', 'w') as f:
-        f.write(f'resource_group = "{resource_group}"\n')
+        f.write(f'project = "{project}"\n')
         f.write(f'Region = "{Region}"\n')
-        f.write(f'availability_zone = "{availability_zone}"\n')
         f.write(f'gke_name = "{gke_name}"\n')
         f.write(f'gke_version = "{gke_version}"\n')
         f.write(f'node_count = "{node_count}"\n')
@@ -570,11 +836,82 @@ def create_gke():
         if vm_name is not None:
             f.write(f'vm_name = "{vm_name}"\n')
             f.write(f'vm_pass = "{vm_pass}"\n')
- 
+
+    file_name = "./user_name.json"
+
+    with open(file_name, 'r') as file:
+        user_data = json.load(file)
+
+    file_name = f'terraform-{user_data["user"]}.tfvars'
+    file_path = f'gcp/template/{file_name}'
+
+
+    tf_config = f'''
+    project = "{project}"
+    Region = "{Region}"
+    gke_name = "{gke_name}"
+    gke_version = "{gke_version}"
+    node_count = "{node_count}"
+    cluster_type = "{cluster_type}"
+    vm_name = "{vm_name}"  
+    vm_pass = "{vm_pass}" 
+    '''
+
+
+
+    # Print the tf_config (optional)
+    print("Configuration:", tf_config)
+
+    # Upload the tfvars file to GitLab
+    print("Uploading tfvars file to GitLab")
+    upload_file_to_gitlab(file_path, tf_config, project_id, access_token, gitlab_url, branch_name)
+    print("Tfvars File uploaded successfully")
+
     # You can also redirect the user to a success page if needed
-    return render_template('success.html')
- 
- 
+    # return render_template('success-gke.html')
+
+
+    terraform_data = read_terraform_data()
+
+    if terraform_data is not None:
+        # Render the template with the fetched data
+        print(f"Rendering template with data: {terraform_data}")
+        return render_template('success-aks.html',
+                               project=terraform_data.get('resource_group', 'yourDefaultREsourceGroup'),
+                               region=terraform_data.get('Region', 'YourDefaultRegion'),
+                               aks_name=terraform_data.get('aks_name', 'YourDefaultEKSName'))
+                               
+    else:
+        # Render a template or handle the case when the file does not exist
+        print("Rendering file_not_found.html template")
+        return render_template('file_not_found.html') 
+
+    # Handle GET request if needed
+
+    # You can also redirect the user to a success page if needed
+    # return render_template('success-eks.html')
+
+
+def read_terraform_data():
+    # File name is fixed as terraform.tfvars
+    file_name = 'terraform.tfvars'
+
+    try:
+        # Read data from the fixed file
+        with open(file_name, 'r') as file:
+            terraform_data = hcl.load(file)
+
+        print(terraform_data)
+
+        return terraform_data
+    except FileNotFoundError:
+        print(f"File not found: {file_name}")
+        return None
+
+read_terraform_data()
+
+
+
 @app.route("/index")
 @login_required
 def index():
@@ -681,5 +1018,122 @@ def delete(id):
     return redirect("/index")
  
  
+@app.route('/eks-output')
+def eks_page():
+    eks_name = "anuj987"
+    region = "US West (N. California)"
+    instance_type = "t3.medium"
+    eks_version = "1.27"
+    desired_size = "2"
+    max_size = "2"
+    min_size = "2"
+    cluster_type = "Private"
+
+    return render_template('eks_page.html', eks_name=eks_name, region=region, instance_type=instance_type,
+                           eks_version=eks_version, desired_size=desired_size, max_size=max_size, min_size=min_size,
+                           cluster_type=cluster_type)
+
+@app.route('/aks-output')
+def aks_page():
+    rg_name = "manjari"
+    region = "East US"
+    availability_zones = "['zone1','zone2']"
+    aks_name = "manjari"
+    aks_version = "1.24"
+    node_count = "1"
+
+    return render_template('aks_page.html', rg_name=rg_name, region=region, availability_zones=availability_zones,
+                           aks_name=aks_name, aks_version=aks_version, node_count=node_count)
+
+@app.route('/gke-output')
+def gke_page():
+    project = "myproject"
+    region = "None"
+    gke_name = "asdf"
+    gke_version = "2.0"
+    node_count = "2"
+    cluster_type = "Public"
+    vm_name = "None"
+    vm_pass = "None"
+
+    return render_template('gke_page.html', project=project, region=region, gke_name=gke_name,
+                           gke_version=gke_version, node_count=node_count, cluster_type=cluster_type,
+                           vm_name=vm_name, vm_pass=vm_pass)
+
+
+
+
+
+# show credentials script
+
+# key_vault_url = "https://azure-final.vault.azure.net/"
+# secret_name = "client-id"
+
+# def get_azure_credentials():
+#     key_vault_url = "https://azure-final.vault.azure.net/"    
+# # Use DefaultAzureCredential to automatically authenticate
+#     credential = DefaultAzureCredential()
+    
+#     # Create a SecretClient using the Key Vault URL
+#     secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
+
+#     # Retrieve the secret containing your Azure credentials
+#     secret = secret_client.get_secret("client-id")
+#     secret1 = secret_client.get_secret("client-secret")
+#     secret2 = secret_client.get_secret("subscription-id")
+#     secret3 = secret_client.get_secret("tenant-id")
+    
+#     # Print the raw secret value
+#     print("Client ID:")
+#     print(secret.value)
+#     print("Client Secret:")
+#     print(secret1.value)
+#     print("Subscription ID:")
+#     print(secret2.value)
+#     print("Tenant ID:")
+#     print(secret3.value)
+#     return
+# def get_aws_credentials():
+#     key_vault_url = "https://aws-final.vault.azure.net/" 
+#     # Use DefaultAzureCredential to automatically authenticate
+#     credential = DefaultAzureCredential()
+
+#     # Create a SecretClient using the Key Vault URL
+#     secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
+
+#     # Retrieve the secret containing your Azure credentials
+#     secret = secret_client.get_secret("Access-key")
+#     secret1 = secret_client.get_secret("secret-Access-key")
+   
+    
+#     # Print the raw secret value
+#     print("Access-key:")
+#     print(secret.value)
+#     print("Secret-Access-key:")
+#     print(secret1.value)
+#     return
+# def get_gcp_credentials():
+#     key_vault_url = "https://gcp-final.vault.azure.net/"    
+# # Use DefaultAzureCredential to automatically authenticate
+#     credential = DefaultAzureCredential()
+    
+#     # Create a SecretClient using the Key Vault URL
+#     secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
+
+#     # Retrieve the secret containing your Azure credentials
+#     secret = secret_client.get_secret("your-secret-name")
+      
+#     # Print the raw secret value
+#     print("gcp json data:")
+#     print(secret.value)
+#     return
+
+# get_azure_credentials()
+# get_aws_credentials()
+# get_gcp_credentials()
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0',port=4000)

@@ -212,4 +212,21 @@ button:hover {
 
 .aws-credentials{
     margin-top:20%;
+    padding-left :10%;
+}
+.gcp-credentials{
+    margin-top:20%;
+    padding-left :10%;
+}
+.azure-credentials{
+    margin-top:20%;
+    padding-left :10%;
+}
+.details{
+    margin-top: 20%;
+    padding-left :10%;
+}
+.cluster-details{
+    margin-top: 20%;
+    padding-left :10%;
 }

@@ -141,7 +141,19 @@ def dashboard_cloud():
 def show_details_aws():
     if current_user.is_authenticated:
         username = current_user.username
-        return render_template('show-details-aws.html', username=username)
+        key_vault_url = "https://aws-final.vault.azure.net/"
+    
+        # Use DefaultAzureCredential to automatically authenticate
+        credential = DefaultAzureCredential()
+        
+        # Create a SecretClient using the Key Vault URL
+        secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
+
+        # Retrieve the secrets
+        secret_access_key = secret_client.get_secret("secret-Access-key").value
+        access_key = secret_client.get_secret("Access-key").value
+        
+        return render_template('show-details-aws.html', access_key=access_key, secret_access_key=secret_access_key)
     else:
         return redirect(url_for('login'))
 
@@ -150,7 +162,26 @@ def show_details_aws():
 def show_details_azure():
     if current_user.is_authenticated:
         username = current_user.username
-        return render_template('show-details-azure.html', username=username)
+        key_vault_url = "https://azure-final.vault.azure.net/"
+    
+        # Use DefaultAzureCredential to automatically authenticate
+        credential = DefaultAzureCredential()
+        
+        # Create a SecretClient using the Key Vault URL
+        secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
+
+        # Retrieve the secret containing your Azure credentials
+        secret_id = "client-id"
+        secret_secret = "client-secret"
+        secret_subscription = "subscription-id"
+        secret_tenant = "tenant-id"
+
+        client_id = secret_client.get_secret(secret_id).value
+        client_secret = secret_client.get_secret(secret_secret).value
+        subscription_id = secret_client.get_secret(secret_subscription).value
+        tenant_id = secret_client.get_secret(secret_tenant).value
+        return render_template('show-details-azure.html', username=username, client_id=client_id, client_secret=client_secret, subscription_id=subscription_id, tenant_id=tenant_id)
+        
     else:
         return redirect(url_for('login'))
 
@@ -160,7 +191,67 @@ def show_details_azure():
 def show_details_gcp():
     if current_user.is_authenticated:
         username = current_user.username
-        return render_template('show-details-gcp.html', username=username)
+        key_vault_url = "https://gcp-final.vault.azure.net/"
+    
+    # Use DefaultAzureCredential to automatically authenticate
+        credential = DefaultAzureCredential()
+        
+        # Create a SecretClient using the Key Vault URL
+        secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
+
+        # Retrieve the secrets
+        secret_name = "your-secret-name"
+        secret = secret_client.get_secret(secret_name)
+        secret_value = secret.value
+
+        return render_template('show-details-gcp.html', secret_value=secret_value, username=username)
+        
+    else:
+        return redirect(url_for('login'))
+        
+        
+        
+@app.route('/create-cluster', methods=['GET', 'POST'])
+def create_cluster():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('create-cluster.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+
+
+@app.route('/my-cluster', methods=['GET', 'POST'])
+def my_cluster():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('my-cluster.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/my-cluster-details', methods=['GET', 'POST'])
+def my_cluster_details():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('my-cluster-details.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+
+
+@app.route('/cluster-creation-status', methods=['GET', 'POST'])
+def cluster_creation_status():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('cluster-creation-status.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/cluster-details', methods=['GET', 'POST'])
+def cluster_details():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('cluster-details.html', username=username)
     else:
         return redirect(url_for('login'))
 

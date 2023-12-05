@@ -239,6 +239,16 @@ def my_cluster_details():
 
 
 
+
+@app.route('/my-cluster-details-gcp', methods=['GET', 'POST'])
+def my_cluster_details_gcp():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('my-cluster-details-gcp.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+
 @app.route('/cluster-creation-status', methods=['GET', 'POST'])
 def cluster_creation_status():
     if current_user.is_authenticated:
@@ -255,6 +265,22 @@ def cluster_details():
     else:
         return redirect(url_for('login'))
 
+       
+@app.route('/cluster-details-azure', methods=['GET', 'POST'])
+def my_cluster_details_azure():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('cluster-details-azure.html', username=username)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/cluster-details-gcp', methods=['GET', 'POST'])
+def cluster_details_gcp():
+    if current_user.is_authenticated:
+        username = current_user.username
+        return render_template('cluster-details-gcp.html', username=username)
+    else:
+        return redirect(url_for('login'))
 
 # @app.route('/final-dashboard', methods=['GET', 'POST'])
 # def dashboard():

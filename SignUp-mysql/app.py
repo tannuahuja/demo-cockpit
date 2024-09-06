@@ -18,12 +18,8 @@ from azure.keyvault.secrets import SecretClient
 from azure.mgmt.keyvault import KeyVaultManagementClient
 from flask import Flask, jsonify
 import hcl
-# Your Flask setup code
-
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-
-
 
 # pipeline trigger token : glptt-e37d81a289c6faf58efd9a34daaa476a3f18e6e1
 gitlab_url = "https://gitlab.com"
@@ -34,16 +30,13 @@ branch_name = "featurebrach1"
 app = Flask(__name__, static_url_path='/static')
  
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
- 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quelin.db[17:12] Manjari Srivastav
+ # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quelin.db[17:12] Manjari Srivastav
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://admin:cockpitpro@cockpit-pro.cdcxjmndyjyl.ap-southeast-2.rds.amazonaws.com:3306/cockpit'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
- 
- 
  
 class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,7 +47,6 @@ class User(db.Model,UserMixin):
  
     def __repr__(self):
         return f"User('{self.username}', '{self.email}')"
- 
  
 class todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -98,7 +90,6 @@ class LoginForm(FlaskForm):
 def load_user(user_id):
     return User.query.get(int(user_id))
  
- 
 @app.route("/")
 @app.route("/home")
 def home():
@@ -108,19 +99,6 @@ def get_authenticated_user_id():
     username = session.get('username')
     return username
  
-#it is the working code for UI 
-# @app.route('/final-dashboard', methods=['GET', 'POST'])
-# def dashboard():
-#     if current_user.is_authenticated:
-#         username = current_user.username
-#         return render_template('final-dashboard.html', username=username)
-#     else:
-#         return redirect(url_for('login'))  
-
-
-
-
-
 @app.route('/final-dashboard', methods=['GET', 'POST'])
 def dashboard():
     if current_user.is_authenticated:
@@ -142,75 +120,57 @@ def show_details_aws():
     if current_user.is_authenticated:
         username = current_user.username
         key_vault_url = "https://aws-final.vault.azure.net/"
-    
         # Use DefaultAzureCredential to automatically authenticate
         credential = DefaultAzureCredential()
-        
         # Create a SecretClient using the Key Vault URL
         secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
-
         # Retrieve the secrets
         secret_access_key = secret_client.get_secret("secret-Access-key").value
         access_key = secret_client.get_secret("Access-key").value
-        
         return render_template('show-details-aws.html', access_key=access_key, secret_access_key=secret_access_key)
     else:
         return redirect(url_for('login'))
-
 
 @app.route('/show-details-azure', methods=['GET', 'POST'])
 def show_details_azure():
     if current_user.is_authenticated:
         username = current_user.username
         key_vault_url = "https://azure-final.vault.azure.net/"
-    
         # Use DefaultAzureCredential to automatically authenticate
         credential = DefaultAzureCredential()
-        
         # Create a SecretClient using the Key Vault URL
         secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
-
         # Retrieve the secret containing your Azure credentials
         secret_id = "client-id"
         secret_secret = "client-secret"
         secret_subscription = "subscription-id"
         secret_tenant = "tenant-id"
-
         client_id = secret_client.get_secret(secret_id).value
         client_secret = secret_client.get_secret(secret_secret).value
         subscription_id = secret_client.get_secret(secret_subscription).value
         tenant_id = secret_client.get_secret(secret_tenant).value
-        return render_template('show-details-azure.html', username=username, client_id=client_id, client_secret=client_secret, subscription_id=subscription_id, tenant_id=tenant_id)
-        
+        return render_template('show-details-azure.html', username=username, client_id=client_id, client_secret=client_secret, subscription_id=subscription_id, tenant_id=tenant_id)        
     else:
         return redirect(url_for('login'))
-
-
 
 @app.route('/show-details-gcp', methods=['GET', 'POST'])
 def show_details_gcp():
     if current_user.is_authenticated:
         username = current_user.username
-        key_vault_url = "https://gcp-final.vault.azure.net/"
-    
+        key_vault_url = "https://gcp-final.vault.azure.net/"  
     # Use DefaultAzureCredential to automatically authenticate
-        credential = DefaultAzureCredential()
-        
+        credential = DefaultAzureCredential()        
         # Create a SecretClient using the Key Vault URL
         secret_client = SecretClient(vault_url=key_vault_url, credential=credential)
-
         # Retrieve the secrets
         secret_name = "your-secret-name"
         secret = secret_client.get_secret(secret_name)
         secret_value = secret.value
-
         return render_template('show-details-gcp.html', secret_value=secret_value, username=username)
         
     else:
         return redirect(url_for('login'))
-        
-        
-        
+         
 @app.route('/create-cluster', methods=['GET', 'POST'])
 def create_cluster():
     if current_user.is_authenticated:
@@ -218,8 +178,6 @@ def create_cluster():
         return render_template('create-cluster.html', username=username)
     else:
         return redirect(url_for('login'))
-
-
 
 @app.route('/my-cluster', methods=['GET', 'POST'])
 def my_cluster():
@@ -237,9 +195,6 @@ def my_cluster_details():
     else:
         return redirect(url_for('login'))
 
-
-
-
 @app.route('/my-cluster-details-gcp', methods=['GET', 'POST'])
 def my_cluster_details_gcp():
     if current_user.is_authenticated:
@@ -247,7 +202,6 @@ def my_cluster_details_gcp():
         return render_template('my-cluster-details-gcp.html', username=username)
     else:
         return redirect(url_for('login'))
-
 
 @app.route('/cluster-creation-status', methods=['GET', 'POST'])
 def cluster_creation_status():
@@ -264,8 +218,7 @@ def cluster_details():
         return render_template('cluster-details.html', username=username)
     else:
         return redirect(url_for('login'))
-
-       
+  
 @app.route('/cluster-details-azure', methods=['GET', 'POST'])
 def my_cluster_details_azure():
     if current_user.is_authenticated:
@@ -281,29 +234,10 @@ def cluster_details_gcp():
         return render_template('cluster-details-gcp.html', username=username)
     else:
         return redirect(url_for('login'))
-
-# @app.route('/final-dashboard', methods=['GET', 'POST'])
-# def dashboard():
-#     if current_user.is_authenticated:
-#         username = current_user.username
-#         return render_template('final-dashboard.html', username=username)
-#     else:
-#         return redirect(url_for('login'))
-
-
-# @app.route('/dashboard-cloud', methods=['GET', 'POST'], endpoint='dashboard_cloud')
-# def dashboard_cloud():
-#     if current_user.is_authenticated:
-#         username = current_user.username
-#         return render_template('dashboard-cloud.html', username=username)
-#     else:
-#         return redirect(url_for('login'))
-    
- 
+     
 @app.route('/cloud')
 def cloud():
     return render_template('cloud.html')
- 
  
 @app.route('/aws')
 def aws():
@@ -318,39 +252,28 @@ def submit_form_aws():
     User_Id = str(int(random.random()))
 
     user_detail = {
-        "user": User_name,
-        
+        "user": User_name, 
     }
-
     print("User name:", User_name)
-
     file_name = "user_name.json"
-
     with open(file_name, 'w') as file:
         json.dump(user_detail, file)
  
- 
- 
-    # Write AWS form data to terraform.vars file
+    # Write AWS form data to teraform.vars file
     with open('terraform.tfvars', 'w') as f:
         f.write(f'Access_key = "{Access_key}"\n')
         f.write(f'secret_Access_key = "{secret_Access_key}"\n')
     
- 
      ## starting the script
- 
     # Azure Resource Group and Key Vault Configuration
     resource_group_name = "prashant-rg"  
     key_vault_name = User_name + User_Id
     secrets_file_path = "./terraform.tfvars"
- 
-    
- 
+  
     # Replace underscores with hyphens in the Key Vault and Resource Group names
     key_vault_name = key_vault_name.replace("_", "-")
     resource_group_name = resource_group_name.replace("_", "-")
  
-    
     subscription_id = '1ce8bf33-286c-42dd-b193-10c310dd14b7'
     client_id = '4b5bd0f1-f692-47dd-a186-c8bf1925a86b'
     client_secret = 'N6C8Q~IP4Ls3SeCGkN4gOI0zUYjAEhM0A_d4Aa1K'
@@ -365,10 +288,6 @@ def submit_form_aws():
             key, value = line.strip().split(" = ")
             secrets[key] = value
     
-    
- 
-    
- 
     # Authenticate to Azure
     try:
         # Use Azure CLI to get the access token
@@ -376,27 +295,21 @@ def submit_form_aws():
     except subprocess.CalledProcessError:
         print("Error: Failed to obtain Azure access token. Make sure you are logged into Azure CLI.")
         exit(1)
- 
- 
+  
     # Create Azure Key Vault in the specified Resource Group
     try:
         subprocess.check_call(["az", "keyvault", "create", "--name", key_vault_name, "--resource-group", resource_group_name, "--location", "southcentralus"])
         print(f"Azure Key Vault '{key_vault_name}' created successfully in Resource Group '{resource_group_name}'.")
     except subprocess.CalledProcessError:
         print(f"Azure Key Vault '{key_vault_name}' already exists or encountered an error during creation in Resource Group '{resource_group_name}'.")
- 
-    
- 
-    # Store secrets in Azure Key Vault
+
+ # Store secrets in Azure Key Vault
     for key, value in secrets.items():
         # Replace underscores with hyphens in the secret name
         key = key.replace("_", "-")
         encoded_value = base64.b64encode(value.encode("utf-8")).decode("utf-8")     
         command = f"az keyvault secret set --vault-name {key_vault_name} --name {key} --value {encoded_value} --output none --query 'value'"
         # command = f"az keyvault secret set --vault-name {key_vault_name} --name {key} --value {value} --output none --query 'value'"
- 
-    
- 
         try:
             # Use Azure CLI to set the secret in the Key Vault
             subprocess.check_call(["bash", "-c", f'AZURE_ACCESS_TOKEN="{access_token}" {command}'])
@@ -405,18 +318,9 @@ def submit_form_aws():
             print(f"Error: Failed to store secret '{key}' in Azure Key Vault '{key_vault_name}'.")
             print(e)
  
-    
- 
     print("All secrets have been stored in Azure Key Vault.")
-    
- 
     os.remove(secrets_file_path)     
-    
- 
     with open(secrets_file_path, "w"):         pass
- 
-    ## ending the script
- 
     return render_template('./create_aws.html')
  
 @app.route('/aws_form', methods=['GET'])
@@ -441,8 +345,7 @@ def create_aws():
     desired_size = request.form.get('desired_size')
     max_size = request.form.get('max_size')
     min_size = request.form.get('min_size')
-    cluster_type = request.form.get('cluster_type')
-    
+    cluster_type = request.form.get('cluster_type')    
     eks_version = float(eks_version)
  
     # Create the content for terraform.tfvars
@@ -460,7 +363,6 @@ def create_aws():
 
     with open(file_name, 'r') as file:
         user_data = json.load(file)
-
     file_name = f'terraform-{user_data["user"]}.tfvars'
     file_path = f'aws/template/{file_name}'
 
@@ -475,21 +377,14 @@ min_size = "{min_size}"
 cluster_type = "{cluster_type}"
 '''
     print("Configuration:", tf_config)
-
-    print("Configuration:", tf_config)
-
-    
+    print("Configuration:", tf_config)   
     print("Uploading tf file to gitlab")
     upload_file_to_gitlab(file_path, tf_config, project_id, access_token, gitlab_url, branch_name)
     print("Tf File uploaded successfully")
-
        # Redirect the user to the success page with the user parameter
     # return redirect(url_for('show_terraform_data', user=user_data["user"]))
-
-
     # return render_template('success-eks.html')
     terraform_data = read_terraform_data()
-
     if terraform_data is not None:
         # Render the template with the fetched data
         print(f"Rendering template with data: {terraform_data}")
@@ -502,46 +397,21 @@ cluster_type = "{cluster_type}"
         return render_template('file_not_found.html') 
 
     # Handle GET request if needed
-
     # You can also redirect the user to a success page if needed
     # return render_template('success-eks.html')
-
-
 def read_terraform_data():
     # File name is fixed as terraform.tfvars
     file_name = 'terraform.tfvars'
-
     try:
         # Read data from the fixed file
         with open(file_name, 'r') as file:
             terraform_data = hcl.load(file)
-
         print(terraform_data)
-
         return terraform_data
     except FileNotFoundError:
         print(f"File not found: {file_name}")
         return None
-
 read_terraform_data()
-
-
-
-# @app.route('/create_aws', methods=['GET', 'POST'])
-# def show_terraform_data(user):
-#     # Fetch data from the dynamically generated file
-#     terraform_data = read_terraform_data(user)
-
-#     if terraform_data is not None:
-#         # Render the template with the fetched data
-#         print(f"Rendering template with data: {terraform_data}")
-#         return render_template('success-eks.html',
-#                                Region=terraform_data.get('variable', {}).get('Region', {}).get('default', ''),
-#                                eks_name=terraform_data.get('variable', {}).get('eks_name', {}).get('default', ''))
-#     else:
-#         # Render a template or handle the case when the file does not exist
-#         print("Rendering file_not_found.html template")
-#         return render_template('file_not_found.html')
 
 #azure form
 @app.route('/azure')
@@ -584,9 +454,6 @@ def submit_form_azure():
 
     with open(file_name, 'w') as file:
         json.dump(user_detail, file)
-
-    
-
  
    # Replace underscores with hyphens in the Key Vault and Resource Group names
     key_vault_name = key_vault_name.replace("_", "-")
@@ -611,8 +478,6 @@ def submit_form_azure():
             # print(value)
             client_secret = value
  
-    # print (client_secret)
- 
     keyvaults = keyvault_client.vaults.list()
     for vault in keyvaults:
         vault_name = vault.name
@@ -635,7 +500,6 @@ def submit_form_azure():
         print("No matching secret found in any of the Key Vaults.")
  
     # Authenticate to Azure
- 
         try:
             # Use Azure CLI to get the access token
             access_token = subprocess.check_output(["az", "account", "get-access-token", "--query", "accessToken", "-o", "tsv"]).decode("utf-8").strip()
@@ -650,15 +514,13 @@ def submit_form_azure():
         except subprocess.CalledProcessError:
             print(f"Azure Key Vault '{key_vault_name}' already exists or encountered an error during creation in Resource Group '{resource_group_name}'.")
  
-        
         # Store secrets in Azure Key Vault
         for key, value in secrets.items():
             # Replace underscores with hyphens in the secret name
             key = key.replace("_", "-")
             encoded_value = base64.b64encode(value.encode("utf-8")).decode("utf-8")     
             command = f"az keyvault secret set --vault-name {key_vault_name} --name {key} --value {encoded_value} --output none --query 'value'"
-            # command = f"az keyvault secret set --vault-name {key_vault_name} --name {key} --value {value} --output none --query 'value'"
- 
+            # command = f"az keyvault secret set --vault-name {key_vault_name} --name {key} --value {value} --output none --query 'value'" 
             try:
                 # Use Azure CLI to set the secret in the Key Vault
                 subprocess.check_call(["bash", "-c", f'AZURE_ACCESS_TOKEN="{access_token}" {command}'])
@@ -666,20 +528,15 @@ def submit_form_azure():
             except subprocess.CalledProcessError as e:
                 print(f"Error: Failed to store secret '{key}' in Azure Key Vault '{key_vault_name}'.")
                 print(e)
- 
-        
-        print("All secrets have been stored in Azure Key Vault.")
-        
+        print("All secrets have been stored in Azure Key Vault.")     
         os.remove(secrets_file_path)     
         
         with open(secrets_file_path, "w"):
-            pass
-    
+            pass   
     ## ending the script
     flash('Credential Succesfully added.', 'success')
     return render_template('create_aks.html')
- 
- 
+  
 @app.route('/azure_form', methods=['GET'])
 def azure_form():
     return render_template('create_aks.html')
@@ -702,15 +559,11 @@ def create_aks():
     aks_version = request.form.get('aks_version')
     node_count = request.form.get('node_count')
     cluster_type = request.form.get('cluster_type')
-
-
     file_name = "./user_name.json"
 
     with open(file_name, 'r') as file:
         user_data = json.load(file)
-
-        
-
+     
     user_data["rg_name"] = resource_group
     user_data["Region"] = Region
     user_data["availability_zones"] = availability_zones
@@ -718,7 +571,6 @@ def create_aks():
     user_data["aks_version"] = aks_version
     user_data["node_count"] = node_count
     user_data["cluster_type"] = cluster_type
-
 
     print("user name is:", user_data["user"])
 
@@ -729,7 +581,6 @@ def create_aks():
     # Initialize variables for vm_name and vm_pass
     vm_name = None
     vm_pass = None
-
     # Process form data based on Cluster Type
     if cluster_type == 'Private':
         vm_name = request.form.get('vm_name')
@@ -772,20 +623,11 @@ aks_name = "{aks_name}"
 aks_version = "{aks_version}"
 node_count = "{node_count}"'''
    
-    print("Configuration:", tf_config)
-    
+    print("Configuration:", tf_config)   
     print("Uploading tf file to gitlab")
     upload_file_to_gitlab(file_path, tf_config, project_id, access_token, gitlab_url, branch_name)
     print("Tf File uploaded successfully")
 
-    #os.remove("terraform.tfvars")
-    # return json.dumps( {
-    #         "message": 'pipeline is triggered!And the data is stored in tf file ',
-    #         "statusCode": 200
-    #     })
-    # return render_template('success-aks.html')
-
-    # return jsonify(user_data)
     terraform_data = read_terraform_data()
 
     if terraform_data is not None:
@@ -802,10 +644,8 @@ node_count = "{node_count}"'''
         return render_template('file_not_found.html') 
 
     # Handle GET request if needed
-
     # You can also redirect the user to a success page if needed
     # return render_template('success-eks.html')
-
 
 def read_terraform_data():
     # File name is fixed as terraform.tfvars
@@ -824,9 +664,6 @@ def read_terraform_data():
         return None
 
 read_terraform_data()
-
-
-
 
 @app.route('/gcp')
 def gcp():
@@ -974,8 +811,6 @@ def create_gke():
     vm_pass = "{vm_pass}" 
     '''
 
-
-
     # Print the tf_config (optional)
     print("Configuration:", tf_config)
 
@@ -986,8 +821,6 @@ def create_gke():
 
     # You can also redirect the user to a success page if needed
     # return render_template('success-gke.html')
-
-
     terraform_data = read_terraform_data()
 
     if terraform_data is not None:
@@ -1004,15 +837,11 @@ def create_gke():
         return render_template('file_not_found.html') 
 
     # Handle GET request if needed
-
     # You can also redirect the user to a success page if needed
     # return render_template('success-eks.html')
-
-
 def read_terraform_data():
     # File name is fixed as terraform.tfvars
     file_name = 'terraform.tfvars'
-
     try:
         # Read data from the fixed file
         with open(file_name, 'r') as file:
@@ -1027,20 +856,16 @@ def read_terraform_data():
 
 read_terraform_data()
 
-
-
 @app.route("/index")
 @login_required
 def index():
     todos=todo.query.filter_by(user_id=current_user.id)
     return render_template('index.html',todos=todos)
  
- 
 @app.route("/about")
 def about():
     return render_template('about.html', title='About')
- 
- 
+  
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -1055,8 +880,7 @@ def register():
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
     
-    return render_template('register.html', title='Register', form=form)
- 
+    return render_template('register.html', title='Register', form=form) 
  
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -1078,17 +902,12 @@ def login():
 def logout():
     logout_user()
     flash('Logout successful.', 'success')
-    return redirect(url_for('home'))
- 
- 
- 
+    return redirect(url_for('home')) 
  
 @app.route("/account")
 @login_required
 def account():
-    
-    return render_template('account.html', title='Account')
- 
+    return render_template('account.html', title='Account') 
 @app.route("/add",methods=["POST"])
 @login_required
 def add():
@@ -1103,7 +922,6 @@ def add():
         
     return redirect(url_for("index"))
  
- 
 @app.route("/complete/<int:id>")
 @login_required
 def complete(id):
@@ -1115,8 +933,7 @@ def complete(id):
     if ToDo.complete:
         ToDo.complete=False
     else:
-        ToDo.complete=True
- 
+        ToDo.complete=True 
     db.session.add(ToDo)
     db.session.commit()
     
@@ -1127,13 +944,11 @@ def complete(id):
 def delete(id):
     ToDo=todo.query.get(id)
     if not ToDo:
-        return redirect("/index")
-    
+        return redirect("/index") 
     db.session.delete(ToDo)
     db.session.commit()
  
     return redirect("/index")
- 
  
 @app.route('/eks-output')
 def eks_page():
@@ -1176,10 +991,6 @@ def gke_page():
     return render_template('gke_page.html', project=project, region=region, gke_name=gke_name,
                            gke_version=gke_version, node_count=node_count, cluster_type=cluster_type,
                            vm_name=vm_name, vm_pass=vm_pass)
-
-
-
-
 
 # show credentials script
 
@@ -1248,9 +1059,6 @@ def gke_page():
 # get_azure_credentials()
 # get_aws_credentials()
 # get_gcp_credentials()
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0',port=4000)

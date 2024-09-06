@@ -7,3 +7,4 @@ python
 flask
 github
 aws
+azure

@@ -2,4 +2,3 @@
 this is the code i have written in knoldus 
 
 
-# knoldus

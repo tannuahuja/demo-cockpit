@@ -8,4 +8,4 @@ flask
 github
 aws
 azure
-gcp
+gcp 
